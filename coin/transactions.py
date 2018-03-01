@@ -11,18 +11,21 @@ TRANSACTION_HASH_LENGTH = 32
 
 def newTransaction(to, amount):
 
-    outputs = coin.db.query("SELECT * from transactionOutputs LEFT JOIN transactionInputs where NOT EXISTS(SELECT * FROM transactionInputs where transactionOutputs.outputHash = transactionInputs.previousHash )", result="all") #Make a query to select outputs not used as inputs
-    wallets = coin.db.query("SELECT * from wallets", result="all") #Make query to get all wallets
+    outputs = coin.db.doQuery("SELECT transactions_outputs.amount, transactions_outputs.address, transactions_outputs.outputHash from transactions_outputs LEFT JOIN transactions_inputs where NOT EXISTS(SELECT * FROM transactions_inputs where transactions_outputs.outputHash = transactions_inputs.previousOutput )", result="all") #Make a query to select outputs not used as inputs
+    wallets = coin.db.doQuery("SELECT * from wallets", result="all") #Make query to get all wallets
 
     for wallet in wallets:
-
+        ID, privateKey, publicKey, myAddress = wallet
+        myMoney = 0
         outputsUsed = []
         for output in outputs:
+            print output
+            amount, address, outputHash = output
 
-            if(output.address == wallet.address):
+            if(address == myAddress):
 
-                myMoney += output.amount
-                outputsUsed.append(output)
+                myMoney += amount
+                outputsUsed.append(outputHash)
 
                 if(myMoney>=amount):
 
@@ -32,21 +35,21 @@ def newTransaction(to, amount):
 
                     for usedOutputs in outputsUsed:
 
-                        messageToSign = output.outputsHash + wallet.publicKey + timestamp
+                        messageToSign = outputHash + publicKey + timestamp
 
-                        signature = coin.ecc.sign_message(int(wallet.privateKey),messageToSign)
+                        signature = coin.ecc.sign_message(int(privateKey),messageToSign)
 
-                        correct = coin.ecc.verify_signature(coin.wallets.decompressPublicKey(publicKey),messageToSign,signature) #TODO: What is decompressPublicKey
+                        correct = coin.ecc.verify_signature(coin.wallet.decompressPublicKey(publicKey),messageToSign,signature) #TODO: What is decompressPublicKey
 
                         assert correct == True
 
-                        coin.db.doQuery("INSERT INTO transactions_inputs (previousOutput, publicKey, timestamp, signature, transactionHash) VALUES (?, ?, ?, ?, ?)", (output.outputHash, wallet.publicKey, timestamp, signature, newTransactionHash), result='none') #Query to create transaction inputs
+                        coin.db.doQuery("INSERT INTO transactions_inputs (previousOutput, publicKey, timestamp, signature, transactionHash) VALUES (?, ?, ?, ?, ?)", (outputHash, wallet.publicKey, timestamp, signature, newTransactionHash), result='none') #Query to create transaction inputs
 
                         #TODO: What is inputDict
 
                     newOutputHash = urandom(TRANSACTION_HASH_LENGTH).encode('hex')
 
-                    coin.db.query("INSERT INTO transactionOutputs (amount, address, outputHash, transactionHash) VALUES (?, ?, ?, ?)",( str(amount), to, newOutputHash, newTransactionHash ), result="none") #Create transaction output to the receiver
+                    coin.db.doQuery("INSERT INTO transactions_outputs (amount, address, outputHash, transactionHash) VALUES (?, ?, ?, ?)",( str(amount), to, newOutputHash, newTransactionHash ), result="none") #Create transaction output to the receiver
 
                     #TODO: What is outputDict
 
