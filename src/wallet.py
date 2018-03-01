@@ -1,3 +1,4 @@
+import coin
 import hashlib
 
 wallet_prefix="coin"
