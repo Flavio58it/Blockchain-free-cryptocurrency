@@ -1,6 +1,6 @@
 # from https://pypi.python.org/pypi/base58/0.2.2
 
-import crackcoin
+import coin
 
 
 class b58encoder(object):

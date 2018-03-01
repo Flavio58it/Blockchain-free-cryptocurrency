@@ -1,4 +1,4 @@
-import coin.wallets
+import coin.wallet
 import coin.transactions
 import sqlite3
 import threading
@@ -54,4 +54,4 @@ class crackDB(object):
 		tmpConn.commit()
 		tmpConn.close()
 
-		coin.wallets.createNewWallet()
+		coin.wallet.createNewWallet()

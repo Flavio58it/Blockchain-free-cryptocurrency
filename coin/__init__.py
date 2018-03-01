@@ -1,11 +1,11 @@
-import databasing, mining, network, ecc, encodings, threads
+import databasing, networks, eccs, encodings, threads
 from hashlib import sha256
 
 db              = databasing.crackDB()
 # miner           = mining.crackcoinMiner()
 network         = networks.crackcoinNetwork()
 
-# ecc             = eccs.ellipticCurve()
+ecc             = eccs
 hasher          = sha256
 encoder         = encodings.b58encoder()
 threader        = threads.crackcoinThreader()

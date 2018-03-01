@@ -11,8 +11,8 @@ def compressPublicKey(publicKey):
 
     # x-coordinate of public key
     x = publicKey[0]
-    # secp256k1 corresponds to curve yˆ2=xˆ3+7
-    # So, yˆ2modp=(xˆ3+7)ˆ((p+1)/4)modp
+    # secp256k1 corresponds to curve y^2=x^3+7
+    # So, y^2modp=(x^3+7)^((p+1)/4)modp
     # reference - https://bitcointalk.org/index.php?topic=644919.msg7205689#msg7205689
     y_squared=((x*x*x+7)%p)
     y_squared_square_root=pow(y_squared,(p+1)/4,p)

@@ -110,7 +110,7 @@ def sign_message(self, private_key, message):
 
     return (r, s)
 
- def verify_signature(self, public_key, message, signature):
+def verify_signature(self, public_key, message, signature):
     z = self.hash_message(message)
     r, s = signature
     w = self.inverse_modulo(s, self.n)
