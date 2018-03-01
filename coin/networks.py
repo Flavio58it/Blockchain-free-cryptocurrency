@@ -40,7 +40,7 @@ class crackcoinNetwork(object):
     def startNetworking(self):
         ''' Start main threads for networking '''
 
-        crackcoin.threader.startBackgroundThread(self.runServer)
+        coin.threader.startBackgroundThread(self.runServer)
 
     def sendToNode(self, ip, msg):
         ''' Send UDP Packet to node '''
@@ -55,25 +55,25 @@ class crackcoinNetwork(object):
         # reply to broadcast packets
         if hasPacketPrefix(data, packet_sync_request):
             # todo: do proper sync, not send everything
-            transactions = crackcoin.db.doQuery("SELECT hash from transactions WHERE hash != 'd34db33f'", result='all') # everything except genesis transaction
+            transactions = coin.db.doQuery("SELECT hash from transactions WHERE hash != 'd34db33f'", result='all') # everything except genesis transaction
             for transaction in transactions:
                 transactionHash = transaction[0]
 
                 # send transaction
-                transactionJSON = crackcoin.transactions.getJSONForTransaction(transactionHash)
-                crackcoin.network.sendToNode(ip, packet_payment_new + zlib.compress(transactionJSON) )
+                transactionJSON = coin.transactions.getJSONForTransaction(transactionHash)
+                coin.network.sendToNode(ip, packet_payment_new + zlib.compress(transactionJSON) )
                 
                 # send current confirmation
-                difficulty,addition = crackcoin.db.doQuery("select difficulty,addition from confirmations where transactionHash = ?", (transactionHash,), result='one')
+                difficulty,addition = coin.db.doQuery("select difficulty,addition from confirmations where transactionHash = ?", (transactionHash,), result='one')
                 data = "%s,%s,%s" % (transactionHash,str(difficulty),addition)
-                crackcoin.network.sendToNode(ip, packet_payment_confirmation + data)
+                coin.network.sendToNode(ip, packet_payment_confirmation + data)
 
 
         if hasPacketPrefix(data, packet_payment_new):
-            crackcoin.transactions.addTransactionJSON( zlib.decompress(data[len(packet_payment_new):]) )
+            coin.transactions.addTransactionJSON( zlib.decompress(data[len(packet_payment_new):]) )
 
         if hasPacketPrefix(data, packet_payment_confirmation):
-            crackcoin.transactions.addConfirmationCSV(data[len(packet_payment_confirmation):])
+            coin.transactions.addConfirmationCSV(data[len(packet_payment_confirmation):])
             
 
     def runServer(self):
