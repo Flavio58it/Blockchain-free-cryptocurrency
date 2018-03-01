@@ -54,4 +54,4 @@ class crackDB(object):
 		tmpConn.commit()
 		tmpConn.close()
 
-		coin.wallet.createNewWallet()
+		coin.wallet.CreateNewWallet()
