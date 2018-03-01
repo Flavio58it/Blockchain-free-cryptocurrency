@@ -52,7 +52,6 @@ def publicKeyToAddress(compressedKey):
     # produce address from compressed public key similar to bitcoin
     s = hashlib.new('sha256', compressedKey).digest()
     r = hashlib.new('ripemd160', s).digest()
-    # to do - complete encoder
     return wallet_prefix + coin.encoder.b58encode(r)
 
 def CreateNewWallet():
