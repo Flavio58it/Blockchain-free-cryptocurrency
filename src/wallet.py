@@ -1,6 +1,6 @@
 import hashlib
 
-walliet_prefix="coin"
+wallet_prefix="coin"
 
 def compressPublicKey(publicKey):
     compressedKey=wallet_prefix
