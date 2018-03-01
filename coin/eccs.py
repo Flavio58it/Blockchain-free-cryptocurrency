@@ -2,6 +2,7 @@ import collections
 import random
 from ext_euclid import inverse_modulo
 from hashlib import sha256
+from os import urandom
 
 EllipticCurve=collections.namedtuple('EllipticCurve','name p a b g n h')
 
@@ -93,31 +94,31 @@ def make_key():
     return private_key,public_key
 
 
-def hash_message(self, message):
+def hash_message(message):
     message_hash = sha256(message).hexdigest()
     m = int(message_hash,16)
     return m
 
-def sign_message(self, private_key, message):
-    z = self.hash_message(message)
+def sign_message(private_key, message):
+    z = hash_message(message)
     r = 0
     s = 0
     while not r or not s:
-        k = int(urandom(64).encode('hex'),16) % self.n
-        x, y = self.scalar_mult(k, self.g)
-        r = x % self.n
-        s = ((z + r * private_key) * self.inverse_mod(k, self.n)) % self.n
+        k = int(urandom(64).encode('hex'),16) % curve.n
+        x, y = mult(k, curve.g)
+        r = x % curve.n
+        s = ((z + r * private_key) * inverse_modulo(k, curve.n)) % curve.n
 
     return (r, s)
 
-def verify_signature(self, public_key, message, signature):
-    z = self.hash_message(message)
+def verify_signature(public_key, message, signature):
+    z = hash_message(message)
     r, s = signature
-    w = self.inverse_modulo(s, self.n)
-    u1 = (z * w) % self.n
-    u2 = (r * w) % self.n
-    x, y = self.addition(self.mult(u1, self.g),self.mult(u2, public_key))
-    if (r % self.n) == (x % self.n):
+    w = inverse_modulo(s, curve.n)
+    u1 = (z * w) % curve.n
+    u2 = (r * w) % curve.n
+    x, y = addition(mult(u1, curve.g),mult(u2, public_key))
+    if (r % curve.n) == (x % curve.n):
         return True
     else:
         return False

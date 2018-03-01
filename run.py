@@ -4,6 +4,7 @@ import coin
 
 import coin.wallet
 import coin.transactions
+import traceback
 
 
 commands = {'q':'quit', 'h':'help', 'b':'broadcast', 't':'transaction', 'i':'information'}
@@ -45,6 +46,7 @@ if __name__ == "__main__":
 
         except Exception as e:
             print "Exception in main: " + e.message
+            print traceback.format_exc()
             break
 
     coin.network.stopServer = True
