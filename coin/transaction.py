@@ -127,12 +127,19 @@ def addTransactionJSON(data):
 
     transactionHash = transaction['transactionHash']
     
-    # validation todo: check if transaction already exists
-
+    # check if transaction already exists
+    db_transactions = coin.db.doQuery("SELECT hash from transactions where hash = ?", (transactionHash,), result='all')
+    if(len(db_transactions) > 0):
+        print "Transaction already exists"
+        return False
     
     transactionTimestamp = transaction['timestamp']
 
-    # validation todo: timestamp must be sane
+    # timestamp must be sane
+    current_time = time()
+    if current_time < float(transactionTimestamp):
+        print "Transaction timestamp is in the future"
+        return False
     
     totalInputAmount = 0
 
@@ -143,7 +150,7 @@ def addTransactionJSON(data):
         numberOfConfirmations = coin.db.doQuery("SELECT count(*) FROM confirmations where transactionHash = ?",transactionHash, result='one')
         if(numberOfConfirmations<2):
             print "Less number of confirmations"
-            return False            
+            return False
         
         # input must exist
         amount, address = coin.db.doQuery("SELECT amount, address from transactions_outputs WHERE outputHash = ?", (outputHash,), result='one')
@@ -158,6 +165,7 @@ def addTransactionJSON(data):
         publicKey = oldInput['publicKey']
 
         # validation todo: convert public key to address and check if address match for old output!
+
 
 
         # timestamp must be the same as transaction
