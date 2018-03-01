@@ -150,7 +150,7 @@ def addTransactionJSON(data):
         outputHash = oldInput['previousOutput']
 
         # Input must have at least 2 confirmations
-        numberOfConfirmations = coin.db.doQuery("SELECT count(*) FROM confirmations where transactionHash = ?",transactionHash, result='one')
+        numberOfConfirmations = coin.db.doQuery("SELECT difficulty FROM confirmations where transactionHash = ?",transactionHash, result='one')
         if(numberOfConfirmations<2):
             print "Less number of confirmations"
             return False
