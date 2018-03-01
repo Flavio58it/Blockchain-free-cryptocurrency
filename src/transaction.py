@@ -56,11 +56,11 @@ def newTransaction(to, amount):
 
                         newOutputHash = urandom(TRANSACTION_HASH_LENGTH).encode('hex')
 
-                        crackcoin.db.doQuery("INSERT INTO transactions_outputs (amount, address, outputHash, transactionHash) VALUES (?, ?, ?, ?)",  (balance, wallet.myAddress, newOutputHash, newTransactionHash),  result='none') #Create a transaction to yourself for the remaining amount
+                        coin.db.doQuery("INSERT INTO transactions_outputs (amount, address, outputHash, transactionHash) VALUES (?, ?, ?, ?)",  (balance, wallet.myAddress, newOutputHash, newTransactionHash),  result='none') #Create a transaction to yourself for the remaining amount
 
                         #TODO: outputDict
 
-                    crackcoin.db.doQuery("INSERT INTO transactions (hash, timestamp) VALUES (?, ?)", (newTransactionHash, timestamp), result='none') #Enter the transaction details to transaction table
+                    coin.db.doQuery("INSERT INTO transactions (hash, timestamp) VALUES (?, ?)", (newTransactionHash, timestamp), result='none') #Enter the transaction details to transaction table
 
                     difficulty = 3
                     #TODO: Calculate difficulty according to the transaction amount?
@@ -72,20 +72,20 @@ def newTransaction(to, amount):
                     coin.network.broadcastTransaction(transactionJSON)
 
 
-def createConfirmation(transactionHash, timestamp, difficulty):
+def createConfirmation(transactionHash, timestamp, difficulty=3):
 
     diff = difficulty
-
+    hasher = hashlib.sha512
     transactionValue = transactionHash + timestamp
 
     while true:
 
         addition = urandom(VALIDATION_ADDITION_LENGTH).encode('hex')
-        confirmtionHash = coin.hash(transactionValue + addition).hexdigest()
+        confirmtionHash = coin.hasher(transactionValue + addition).hexdigest()
 
         if confirmtionHash[:diff].count("0") == difficulty:
 
-            coin.broadcastConfirmation()
+            coin.network.broadcastConfirmation(transactionHash,difficulty,addition)    
             coin.db.doQuery('INSERT INTO confirmations (transactionHash, difficulty, addition, solution) VALUES (?, ?, ?, ?)', (transactionHash, difficulty, addition, solution), result='none') #Enter into confirmation table
 
             break
@@ -140,6 +140,10 @@ def addTransactionJSON(data):
         outputHash = oldInput['previousOutput']
 
         # validation todo: input must have at least 20 confirmations
+        numberOfConfirmations = coin.db.doQuery("SELECT count(*) FROM confirmations where transactionHash = ?",transactionHash, result='one')
+        if(numberOfConfirmations<2):
+            print "Less number of confirmations"
+            return False            
         
         # input must exist
         amount, address = coin.db.doQuery("SELECT amount, address from transactions_outputs WHERE outputHash = ?", (outputHash,), result='one')
@@ -165,9 +169,9 @@ def addTransactionJSON(data):
         # validate signature
         message = outputHash + publicKey + timestamp
 
-        publicKey = crackcoin.wallets.decompressPublicKey(publicKey)
+        publicKey = coin.wallets.decompressPublicKey(publicKey)
 
-        signature = crackcoin.ecc.verify_signature(publicKey, message, signature)
+        signature = coin.ecc.verify_signature(publicKey, message, signature)
 
         if not signature:
             print "error1"
