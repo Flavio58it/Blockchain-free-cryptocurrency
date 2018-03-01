@@ -139,7 +139,7 @@ def addTransactionJSON(data):
     for oldInput in transaction['inputs']:
         outputHash = oldInput['previousOutput']
 
-        # validation todo: input must have at least 20 confirmations
+        # Input must have at least 2 confirmations
         numberOfConfirmations = coin.db.doQuery("SELECT count(*) FROM confirmations where transactionHash = ?",transactionHash, result='one')
         if(numberOfConfirmations<2):
             print "Less number of confirmations"
@@ -149,7 +149,11 @@ def addTransactionJSON(data):
         amount, address = coin.db.doQuery("SELECT amount, address from transactions_outputs WHERE outputHash = ?", (outputHash,), result='one')
         totalInputAmount += amount
 
-        # validation: old input must not already exist in outputs
+        # Old input must not already exist in outputs
+        check = coin.db.doQuery("SELECT count(*) FROM transactions_inputs WHERE outputHash = ?",outputHash, result='one')
+        if(check!=0):
+            print "error: transaction already used"
+            return False
 
         publicKey = oldInput['publicKey']
 
