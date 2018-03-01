@@ -1,17 +1,17 @@
-import crackcoin.wallets
-import crackcoin.transactions
+import coin.wallets
+import coin.transactions
 import sqlite3
 import threading
 
 
-CRACKCOIN_DB_TEMPLATE = 'crackcoinBase.sql'
-CRACKCOIN_DB_FILE = 'crackcoin.db'
+COIN_DB_TEMPLATE = 'coinBase.sql'
+COIN_DB_FILE = 'coin.db'
 
 
 class crackDB(object):
-	""" crackcoin database class """
+	""" coin database class """
 
-	def __init__(self, dbFile = CRACKCOIN_DB_FILE):
+	def __init__(self, dbFile = COIN_DB_FILE):
 		
 		self.dbFile = dbFile
 		self.dblock = threading.Lock()
@@ -31,9 +31,9 @@ class crackDB(object):
 
 		res = ''
 		if result == 'all':
-			res = crackcoin.db.cursor.fetchall()
+			res = coin.db.cursor.fetchall()
 		if result == 'one':
-			res = crackcoin.db.cursor.fetchone()
+			res = coin.db.cursor.fetchone()
 
 		self.conn.commit()
 		self.conn.close()
@@ -47,11 +47,11 @@ class crackDB(object):
 		''' Create database from template and create wallet '''
 
 		# maak db met genesis transaction en wallet
-		sql = open(CRACKCOIN_DB_TEMPLATE,'r').read() 
+		sql = open(COIN_DB_TEMPLATE,'r').read() 
 		tmpConn = sqlite3.connect(self.dbFile)
 		tmpCursor = tmpConn.cursor()
 		tmpCursor.executescript(sql)
 		tmpConn.commit()
 		tmpConn.close()
 
-		crackcoin.wallets.createNewWallet()
+		coin.wallets.createNewWallet()
