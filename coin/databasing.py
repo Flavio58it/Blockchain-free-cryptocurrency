@@ -46,7 +46,6 @@ class crackDB(object):
 	def createDB(self):
 		''' Create database from template and create wallet '''
 
-		# maak db met genesis transaction en wallet
 		sql = open(COIN_DB_TEMPLATE,'r').read() 
 		tmpConn = sqlite3.connect(self.dbFile)
 		tmpCursor = tmpConn.cursor()

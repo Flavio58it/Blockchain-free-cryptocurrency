@@ -31,7 +31,6 @@ def hasPacketPrefix(data, packetPrefix):
 
 
 class crackcoinNetwork(object):
-    """ Class voor crackcoin networking """
 
     def __init__(self):
         self.stopServer = False
@@ -49,7 +48,6 @@ class crackcoinNetwork(object):
         sendSocket.sendto(msg, (ip, NETWORK_PORT))
 
     def handleServerInput(self, data, ip):
-        ''' Handle crackcoin packets '''
 
 
         # reply to broadcast packets
@@ -77,7 +75,6 @@ class crackcoinNetwork(object):
             
 
     def runServer(self):
-        ''' Runs crackcoin UDP server '''
 
         self.serverSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.serverSocket.bind(("", NETWORK_PORT))  # listen on all interfaces

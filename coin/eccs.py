@@ -39,19 +39,19 @@ class ellipticCurve(object):
         x,y=point
         return (y*y-x*x*x-self.a*x-self.b)%self.p==0
 
-    def neg(point):
-        assert self.is_on_curve(self,point)
+    def neg(self,point):
+        assert self.is_on_curve(point)
         if point is None:
             return None
         x,y=point
-        result=(x,-y%curve.p)
-        assert self.is_on_curve(self,result)
+        result=(x,-y%self.p)
+        assert self.is_on_curve(result)
         return result 
 
-    def addition(point1,point2):
+    def addition(self,point1,point2):
         # Check if points are on curve
-        assert self.is_on_curve(self,point1)
-        assert self.is_on_curve(self,point2)
+        assert self.is_on_curve(point1)
+        assert self.is_on_curve(point2)
 
         if point1 is None:
             return point2
@@ -74,12 +74,12 @@ class ellipticCurve(object):
         xr=(m*m-xp-xq)%self.p
         yr=(yp+m*(xr-xp))%self.p
         result=(xr,-yr)
-        assert is_on_curve(self,result)
+        assert self.is_on_curve(result)
 
         return result
 
-    def mult(k,point):
-        assert self.is_on_curve(self,point)
+    def mult(self,k,point):
+        assert self.is_on_curve(point)
 
         if k%self.n==0 or point is None:
             return None
@@ -96,7 +96,7 @@ class ellipticCurve(object):
             double_n=self.addition(double_n,double_n)
             k=k>>1
     
-        assert self.is_on_curve(self,result)
+        assert self.is_on_curve(result)
 
         return result
 
@@ -118,7 +118,7 @@ class ellipticCurve(object):
         s = 0
         while not r or not s:
             k = int(urandom(64).encode('hex'),16) % self.n
-            x, y = self.mult(k, curve.g)
+            x, y = self.mult(k, self.g)
             r = x % self.n
             s = ((z + r * private_key) * inverse_modulo(k, self.n)) % self.n
 

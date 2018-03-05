@@ -7,7 +7,7 @@ def compressPublicKey(publicKey):
     compressedKey=wallet_prefix
     
     #assign prime from ecc to p
-    p = coin.ecc.curve.p
+    p = coin.ecc.p
 
     # x-coordinate of public key
     x = publicKey[0]
@@ -36,7 +36,7 @@ def compressPublicKey(publicKey):
 
 def decompressPublicKey(compressedKey):
     
-    p = coin.ecc.curve.p
+    p = coin.ecc.p
     x = int(coin.encoder.b58decode(compressedKey[len(wallet_prefix)+1:]).encode('hex'), 16)
 
     y_squared=((x*x*x+7)%p)

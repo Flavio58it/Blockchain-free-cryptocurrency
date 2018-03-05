@@ -2,7 +2,6 @@ import threading
 
 
 class crackcoinThreader(object):
-    """ Threading class for crackcoin """
 
     def __init__(self):
         self.threads = []
