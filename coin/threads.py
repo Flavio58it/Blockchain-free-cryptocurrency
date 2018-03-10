@@ -1,7 +1,7 @@
 import threading
 
 
-class crackcoinThreader(object):
+class coinThreader(object):
 
     def __init__(self):
         self.threads = []

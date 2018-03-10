@@ -5,7 +5,7 @@ import socket
 import zlib
 
 
-NETWORK_PORT = 31337
+NETWORK_PORT = 31338
 
 LOOP_TIMEOUT = 4
 NETWORK_SERVER_TIMEOUT = 4
@@ -30,7 +30,7 @@ def hasPacketPrefix(data, packetPrefix):
     return False
 
 
-class crackcoinNetwork(object):
+class coinNetwork(object):
 
     def __init__(self):
         self.stopServer = False

@@ -5,8 +5,6 @@ import coin
 import coin.wallet
 import coin.transactions
 
-#coolAddressNames = ['crackcoin','crackcoiN','crackco1n','crackco1N']
-
 #while 1:
 privateKey, publicKey = coin.ecc.make_key()
 compressedPublicKey = coin.wallet.compressPublicKey(publicKey)

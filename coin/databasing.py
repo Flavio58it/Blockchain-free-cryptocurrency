@@ -8,7 +8,7 @@ COIN_DB_TEMPLATE = 'coinBase.sql'
 COIN_DB_FILE = 'coin.db'
 
 
-class crackDB(object):
+class coinDB(object):
 	""" coin database class """
 
 	def __init__(self, dbFile = COIN_DB_FILE):
@@ -46,6 +46,7 @@ class crackDB(object):
 	def createDB(self):
 		''' Create database from template and create wallet '''
 
+		print "\n\nCreating database...\n\n"
 		sql = open(COIN_DB_TEMPLATE,'r').read() 
 		tmpConn = sqlite3.connect(self.dbFile)
 		tmpCursor = tmpConn.cursor()

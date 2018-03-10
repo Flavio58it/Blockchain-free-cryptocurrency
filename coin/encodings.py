@@ -4,7 +4,7 @@ import coin
 
 
 class b58encoder(object):
-    """ Base58 encoder for crackcoin """
+    """ Base58 encoder for coin """
 
     def __init__(self):
         self.alphabet = 'zyxwvutsrqponmkjihgfedcbaZYXWVUTSRQPNMLKJHGFEDCBA987654321'

@@ -1,14 +1,14 @@
 import databasing, networks, eccs, encodings, threads
 from hashlib import sha256
 
-db              = databasing.crackDB()
-# miner           = mining.crackcoinMiner()
-network         = networks.crackcoinNetwork()
+db              = databasing.coinDB()
+# miner           = mining.coinMiner()
+network         = networks.coinNetwork()
 
 ecc             = eccs.ellipticCurve()
 hasher          = sha256
 encoder         = encodings.b58encoder()
-threader        = threads.crackcoinThreader()
+threader        = threads.coinThreader()
 
 
 from os.path import isfile

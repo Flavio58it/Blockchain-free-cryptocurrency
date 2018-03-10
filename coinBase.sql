@@ -12,7 +12,7 @@ CREATE TABLE "transactions_outputs" (
 	`outputHash`	TEXT,
 	`transactionHash`	TEXT
 );
-INSERT INTO `transactions_outputs` (id,amount,address,outputHash,transactionHash) VALUES (1,31337,'crackcoint3wMFeUjEyrNMRjUR3Y8wm2LopaQmy3PRjaKyWceN','7b50615376ca368b16414deef71e2016f10eda31f4287e041286fcae76fa80fb','d34db33f');
+INSERT INTO `transactions_outputs` (id,amount,address,outputHash,transactionHash) VALUES (1,31337,'coinyVKidFVRaBFw7T6Yp8mRFGd81vU','7b50615376ca368b16414deef71e2016f10eda31f4287e041286fcae76fa80fb','d34db33f');
 CREATE TABLE "transactions_inputs" (
 	`id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 	`previousOutput`	TEXT,

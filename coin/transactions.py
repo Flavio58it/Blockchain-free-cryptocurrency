@@ -1,6 +1,6 @@
 import coin
 import coin.wallet
-
+import hashlib
 from hashlib import sha512
 import json
 from time import time
@@ -33,6 +33,8 @@ def newTransaction(to, amount):
 
                     timestamp = str(time())
 
+                    print timestamp
+
                     for usedOutputs in outputsUsed:
 
                         messageToSign = outputHash + publicKey + timestamp
@@ -41,9 +43,9 @@ def newTransaction(to, amount):
 
                         correct = coin.ecc.verify_signature(coin.wallet.decompressPublicKey(publicKey),messageToSign,signature) #TODO: What is decompressPublicKey
 
-                        assert correct == True
+                        #assert correct == True
 
-                        coin.db.doQuery("INSERT INTO transactions_inputs (previousOutput, publicKey, timestamp, signature, transactionHash) VALUES (?, ?, ?, ?, ?)", (outputHash, wallet.publicKey, timestamp, signature, newTransactionHash), result='none') #Query to create transaction inputs
+                        coin.db.doQuery("INSERT INTO transactions_inputs (previousOutput, publicKey, timestamp, signature, transactionHash) VALUES (?, ?, ?, ?, ?)", (outputHash, publicKey, timestamp, str(signature), newTransactionHash), result='none') #Query to create transaction inputs
 
                         #TODO: What is inputDict
 
@@ -59,7 +61,7 @@ def newTransaction(to, amount):
 
                         newOutputHash = urandom(TRANSACTION_HASH_LENGTH).encode('hex')
 
-                        coin.db.doQuery("INSERT INTO transactions_outputs (amount, address, outputHash, transactionHash) VALUES (?, ?, ?, ?)",  (balance, wallet.myAddress, newOutputHash, newTransactionHash),  result='none') #Create a transaction to yourself for the remaining amount
+                        coin.db.doQuery("INSERT INTO transactions_outputs (amount, address, outputHash, transactionHash) VALUES (?, ?, ?, ?)",  (balance, myAddress, newOutputHash, newTransactionHash),  result='none') #Create a transaction to yourself for the remaining amount
 
                         #TODO: outputDict
 
@@ -81,15 +83,15 @@ def createConfirmation(transactionHash, timestamp, difficulty=3):
     hasher = hashlib.sha512
     transactionValue = transactionHash + timestamp
 
-    while true:
+    while True:
 
         addition = urandom(VALIDATION_ADDITION_LENGTH).encode('hex')
-        confirmtionHash = coin.hasher(transactionValue + addition).hexdigest()
+        confirmationHash = coin.hasher(transactionValue + addition).hexdigest()
 
-        if confirmtionHash[:diff].count("0") == difficulty:
+        if confirmationHash[:diff].count("0") == difficulty:
 
             coin.network.broadcastConfirmation(transactionHash,difficulty,addition)    
-            coin.db.doQuery('INSERT INTO confirmations (transactionHash, difficulty, addition, solution) VALUES (?, ?, ?, ?)', (transactionHash, difficulty, addition, solution), result='none') #Enter into confirmation table
+            coin.db.doQuery('INSERT INTO confirmations (transactionHash, difficulty, addition, solution) VALUES (?, ?, ?, ?)', (transactionHash, difficulty, addition, confirmationHash), result='none') #Enter into confirmation table
 
             break
 
@@ -98,7 +100,7 @@ def getJSONForTransaction(transactionHash):
 
     transaction = coin.db.doQuery('SELECT hash,timestamp from transactions WHERE hash = ?', (transactionHash,), result='one')
 
-    JSONdict = []
+    JSONdict = {}
     JSONdict['inputs'] = []
     JSONdict['outputs'] = []
 
@@ -110,16 +112,16 @@ def getJSONForTransaction(transactionHash):
         previousOutput,publicKey,timestamp,signature = input
 
         inputDict = {'previousOutput':previousOutput, 'publicKey':publicKey, 'timestamp':timestamp, 'signature':signature}
-        JSONDict['inputs'].append(inputDict)
+        JSONdict['inputs'].append(inputDict)
 
     outputs = coin.db.doQuery("SELECT amount, address, outputHash from transactions_outputs WHERE transactionHash = ?", (transactionHash,), result='all')
     for output in outputs:
         amount, address, outputHash = output
 
         outputDict = {'amount':str(amount), 'address':address, 'outputHash':outputHash}
-        JSONDict['outputs'].append(outputDict)
+        JSONdict['outputs'].append(outputDict)
 
-    transactionJSON = json.dumps(JSONDict)
+    transactionJSON = json.dumps(JSONdict)
     return transactionJSON    
 
 
