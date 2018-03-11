@@ -9,7 +9,9 @@ from os import urandom
 VALIDATION_ADDITION_LENGTH = 20 #How do we determine this?
 TRANSACTION_HASH_LENGTH = 32
 
-def newTransaction(to, amount):
+def newTransaction(to, sendAmount):
+
+    sendAmount = int(sendAmount)
 
     outputs = coin.db.doQuery("SELECT transactions_outputs.amount, transactions_outputs.address, transactions_outputs.outputHash from transactions_outputs LEFT JOIN transactions_inputs where NOT EXISTS(SELECT * FROM transactions_inputs where transactions_outputs.outputHash = transactions_inputs.previousOutput )", result="all") #Make a query to select outputs not used as inputs
     wallets = coin.db.doQuery("SELECT * from wallets", result="all") #Make query to get all wallets
@@ -19,7 +21,7 @@ def newTransaction(to, amount):
         myMoney = 0
         outputsUsed = []
         for output in outputs:
-            print output
+            print "output = ",output
             amount, address, outputHash = output
 
             if(address == myAddress):
@@ -27,13 +29,15 @@ def newTransaction(to, amount):
                 myMoney += amount
                 outputsUsed.append(outputHash)
 
-                if(myMoney>=amount):
+                if(myMoney >= sendAmount):
+
+                    print "myMoney>=sendAmount"
 
                     newTransactionHash = urandom(TRANSACTION_HASH_LENGTH).encode('hex') #create a transaction hash
 
                     timestamp = str(time())
 
-                    print timestamp
+                    print "timestamp = ", timestamp
 
                     for usedOutputs in outputsUsed:
 
@@ -51,13 +55,13 @@ def newTransaction(to, amount):
 
                     newOutputHash = urandom(TRANSACTION_HASH_LENGTH).encode('hex')
 
-                    coin.db.doQuery("INSERT INTO transactions_outputs (amount, address, outputHash, transactionHash) VALUES (?, ?, ?, ?)",( str(amount), to, newOutputHash, newTransactionHash ), result="none") #Create transaction output to the receiver
+                    coin.db.doQuery("INSERT INTO transactions_outputs (amount, address, outputHash, transactionHash) VALUES (?, ?, ?, ?)",( str(sendAmount), to, newOutputHash, newTransactionHash ), result="none") #Create transaction output to the receiver
 
                     #TODO: What is outputDict
 
-                    if(myMoney > amount):
+                    if(myMoney > sendAmount):
 
-                        balance = myMoney - amount 
+                        balance = myMoney - sendAmount 
 
                         newOutputHash = urandom(TRANSACTION_HASH_LENGTH).encode('hex')
 
@@ -75,6 +79,8 @@ def newTransaction(to, amount):
                     transactionJSON = getJSONForTransaction(newTransactionHash)
 
                     coin.network.broadcastTransaction(transactionJSON)
+
+                    return
 
 
 def createConfirmation(transactionHash, timestamp, difficulty=3):
