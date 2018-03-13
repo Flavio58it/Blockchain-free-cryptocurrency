@@ -77,6 +77,7 @@ class coinNetwork(object):
     def runServer(self):
 
         self.serverSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.serverSocket.setsockopt(socket.SOL_SOCKET , socket.SO_REUSEADDR , 1)
         self.serverSocket.bind(("", NETWORK_PORT))  # listen on all interfaces
         self.serverSocket.settimeout(LOOP_TIMEOUT)
 
