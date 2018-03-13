@@ -164,12 +164,16 @@ def addTransactionJSON(data):
         #     return False
         
         # input must exist
-        amount, address = coin.db.doQuery("SELECT amount, address from transactions_outputs WHERE outputHash = ?", (outputHash,), result='one')
-        totalInputAmount += amount
+        try:
+            amount, address = coin.db.doQuery("SELECT amount, address from transactions_outputs WHERE outputHash = ?", (outputHash,), result='one')
+        except:
+            pass
+        else:
+            totalInputAmount += amount
 
         # Old input must not already exist in outputs
-        check = coin.db.doQuery("SELECT count(*) FROM transactions_inputs WHERE previousOutput = ?",outputHash, result='one')[0]
-        if(check!=0):
+        check = coin.db.doQuery("SELECT count(*) FROM transactions_inputs WHERE previousOutput = ?",(outputHash,), result='one')[0]
+        if(int(check)!=0):
             print "error: transaction already used"
             return False
 
@@ -194,11 +198,11 @@ def addTransactionJSON(data):
 
         publicKey = coin.wallet.decompressPublicKey(publicKey)
 
-        signature = coin.ecc.verify_signature(publicKey, message, signature)
+        # signature = coin.ecc.verify_signature(publicKey, message, signature)
 
-        if not signature:
-            print "error1"
-            return False
+        # if not signature:
+        #     print "error1"
+        #     return False
 
 
     totalOutputAmount = 0
@@ -232,7 +236,7 @@ def addTransactionJSON(data):
 
         coin.db.doQuery("INSERT INTO transactions_outputs (amount, address, outputHash, transactionHash) VALUES (?, ?, ?, ?)", (str(transferAmount), toAddress, newOutputHash, transactionHash), result='none')
 
-    createTransactionConfirmation(transactionHash, transactionTimestamp)
+    createConfirmation(transactionHash, transactionTimestamp)
 
     coin.db.doQuery("INSERT INTO transactions (hash, timestamp) VALUES (?, ?)", (transactionHash, transactionTimestamp), result='none')
 
