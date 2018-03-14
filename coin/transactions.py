@@ -141,7 +141,7 @@ def addTransactionJSON(data):
     # check if transaction already exists
     db_transactions = coin.db.doQuery("SELECT hash from transactions where hash = ?", (transactionHash,), result='all')
     if(len(db_transactions) > 0):
-        print "Transaction already exists"
+#       print "Transaction already exists"
         return False
     
     transactionTimestamp = transaction['timestamp']
@@ -174,7 +174,7 @@ def addTransactionJSON(data):
         # Old input must not already exist in outputs
         check = coin.db.doQuery("SELECT count(*) FROM transactions_inputs WHERE previousOutput = ?",(outputHash,), result='one')[0]
         if(int(check)!=0):
-            print "error: transaction already used"
+#           print "error: transaction already used"
             return False
 
         publicKey = oldInput['publicKey']
