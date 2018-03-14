@@ -54,17 +54,18 @@ class coinNetwork(object):
         if hasPacketPrefix(data, packet_sync_request):
             # todo: do proper sync, not send everything
             transactions = coin.db.doQuery("SELECT hash from transactions WHERE hash != 'd34db33f'", result='all') # everything except genesis transaction
-            for transaction in transactions:
-                transactionHash = transaction[0]
+            if len(transactions) != 0 :
+                for transaction in transactions:
+                    transactionHash = transaction[0]
 
-                # send transaction
-                transactionJSON = coin.transactions.getJSONForTransaction(transactionHash)
-                coin.network.sendToNode(ip, packet_payment_new + zlib.compress(transactionJSON) )
+                    # send transaction
+                    transactionJSON = coin.transactions.getJSONForTransaction(transactionHash)
+                    coin.network.sendToNode(ip, packet_payment_new + zlib.compress(transactionJSON) )
                 
-                # send current confirmation
-                difficulty,addition = coin.db.doQuery("select difficulty,addition from confirmations where transactionHash = ?", (transactionHash,), result='one')
-                data = "%s,%s,%s" % (transactionHash,str(difficulty),addition)
-                coin.network.sendToNode(ip, packet_payment_confirmation + data)
+                    # send current confirmation
+                    difficulty,addition = coin.db.doQuery("select difficulty,addition from confirmations where transactionHash = ?", (transactionHash,), result='one')
+                    data = "%s,%s,%s" % (transactionHash,str(difficulty),addition)
+                    coin.network.sendToNode(ip, packet_payment_confirmation + data)
 
 
         if hasPacketPrefix(data, packet_payment_new):

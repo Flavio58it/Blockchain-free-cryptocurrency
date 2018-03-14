@@ -110,7 +110,7 @@ def getJSONForTransaction(transactionHash):
     JSONdict['inputs'] = []
     JSONdict['outputs'] = []
 
-    JSONdict['transactionHash'] = transactionHash[0]
+    JSONdict['transactionHash'] = transaction[0]
     JSONdict['timestamp'] = transaction[1]
 
     inputs = coin.db.doQuery("SELECT previousOutput, publicKey, timestamp, signature from transactions_inputs WHERE transactionHash = ?", (transactionHash,), result='all')
